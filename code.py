@@ -275,10 +275,11 @@ def embed_passages(passages: 'list[str]', model, tokenizer, device='cpu', max_le
     return cls_embeddings
 
 def embed_questions(titles, bodies, model, tokenizer, device='cpu', max_length=512):
-     model.eval()
-     model.to(device)
+    model.eval()
+    model.to(device)
 
-     with torch.no_grad():
+    print(titles, bodies)
+    with torch.no_grad():
         encodings = tokenizer(titles, text_pair=bodies, padding=True, truncation=True, max_length=max_length, return_tensors="pt")
 
         input_ids = encodings['input_ids'].to(device)
@@ -287,8 +288,10 @@ def embed_questions(titles, bodies, model, tokenizer, device='cpu', max_length=5
         outputs = model(input_ids=input_ids, attention_mask=attention_mask)
 
         cls_embeddings = outputs.last_hidden_state[:, 0, :]
+        
+    print(cls_embeddings)
 
-     return cls_embeddings
+    return cls_embeddings
 
 
 def recall_at_k(retrieved_indices: 'list[list[int]]', true_indices: 'list[int]', k: int):
