@@ -167,9 +167,12 @@ def freeze_params(model):
 
 
 def pad_attention_mask(mask, p):
+    print(mask, p)
     B = mask.size(0)
     pad_tensor = torch.zeros(B, p, dtype=mask.dtype)
-    return torch.cat([pad_tensor, mask], dim=1)
+    res = torch.cat([pad_tensor, mask], dim=1)
+    print(res)
+    return res
 
 
 class SoftPrompting(nn.Module):
