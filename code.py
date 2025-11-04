@@ -280,7 +280,7 @@ def embed_questions(titles, bodies, model, tokenizer, device='cpu', max_length=5
 
     print(titles, bodies)
     with torch.no_grad():
-        encodings = tokenizer(titles, bodies, max_length=max_length, return_tensors="pt")
+        encodings = tokenizer(titles, text_pair = bodies, max_length=max_length, return_tensors="pt")
 
         input_ids = encodings['input_ids'].to(device)
         attention_mask = encodings['attention_mask'].to(device)
