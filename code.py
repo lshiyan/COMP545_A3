@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
+from transformers import AutoModel, AutoTokenizer
 import transformers
 
 # ######################## PART 1: PROVIDED CODE ########################
@@ -193,16 +194,21 @@ class SoftPrompting(nn.Module):
 # ######################## PART 3: YOUR WORK HERE ########################
 
 def load_models_and_tokenizer(q_name, a_name, t_name, device='cpu'):
-    # TODO: your work below
-    pass
-    # return q_enc, a_enc, tokenizer
+    tokenizer = AutoTokenizer.from_pretrained(t_name)
+
+    q_enc = AutoModel.from_pretrained(q_name).to(device)
+    a_enc = AutoModel.from_pretrained(a_name).to(device)
+
+    return q_enc, a_enc, tokenizer
     
 
 def tokenize_qa_batch(tokenizer, q_titles, q_bodies, answers, max_length=64) -> transformers.BatchEncoding:
-    # TODO: your work below.
-    pass
     
-    # return q_batch, a_batch
+    q_batch = tokenizer(q_titles, q_bodies, max_length=max_length, return_tensors="pt")
+
+    a_batch = tokenizer(answers, max_length=max_length, return_tensors="pt")
+
+    return q_batch, a_batch
 
 def get_class_output(model, batch):
     # Since this is similar to a previous question, it is left ungraded
@@ -210,22 +216,29 @@ def get_class_output(model, batch):
     pass
 
 def inbatch_negative_sampling(Q: Tensor, P: Tensor, device: str = 'cpu') -> Tensor:
-    # TODO: your work below
-    pass
+    Q = Q.to(device)
+    P = P.to(device)
     
-    # return S
+    S = torch.matmul(Q, P.T)
+
+    return S
 
 def contrastive_loss_criterion(S: Tensor, labels: Tensor = None, device: str = 'cpu'):
-    # TODO: your work below
-    pass
-    
-    # return loss
+    S = S.to(device)
+
+    labels = labels.to(device)
+
+    loss_fn = torch.nn.CrossEntropyLoss()
+    loss = loss_fn(S, labels)
+
+    return loss
 
 def get_topk_indices(Q, P, k: int = None):
-    # TODO: your work below
-    pass
+    S = torch.matmul(Q, P.T)
 
-    # return indices, scores
+    scores, indices = torch.topk(S, k=k, dim=1)
+
+    return indices, scores
 
 def select_by_indices(indices: Tensor, passages: 'list[str]') -> 'list[str]':
     # TODO: your work below
