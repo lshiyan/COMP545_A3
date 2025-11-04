@@ -164,13 +164,13 @@ class CustomDistilBert(nn.Module):
 
 # ######################## PART 2: YOUR WORK HERE ########################
 def freeze_params(model):
-    # TODO: your work below
-    pass
+    for param in model.parameters():
+        param.requires_grad = False
 
 
 def pad_attention_mask(mask, p):
-    # TODO: your work below
-    pass
+    pad_tensor = torch.zeros(p)
+    return torch.cat([pad_tensor, mask], dim=0)
 
 
 class SoftPrompting(nn.Module):
@@ -182,8 +182,13 @@ class SoftPrompting(nn.Module):
         self.prompts = torch.randn((p, e), requires_grad=True)
         
     def forward(self, embedded):
-        # TODO: your work below
-        pass
+        B, _, _ = embedded.size()
+
+        prompts_expanded = self.prompts.unsqueeze(0).expand(B, -1, -1)
+
+        output = torch.cat([prompts_expanded, embedded], dim=1)
+
+        return output
 
 
 # ######################## PART 3: YOUR WORK HERE ########################
