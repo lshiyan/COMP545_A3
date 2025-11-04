@@ -280,7 +280,7 @@ def embed_questions(titles, bodies, model, tokenizer, device='cpu', max_length=5
 
     print(titles, bodies)
     with torch.no_grad():
-        encodings = tokenizer(titles, bodies, padding=True, truncation=True, max_length=max_length, return_tensors="pt")
+        encodings = tokenizer(titles, bodies, max_length=max_length, return_tensors="pt")
 
         input_ids = encodings['input_ids'].to(device)
         attention_mask = encodings['attention_mask'].to(device)
@@ -290,6 +290,7 @@ def embed_questions(titles, bodies, model, tokenizer, device='cpu', max_length=5
         cls_embeddings = outputs.last_hidden_state[:, 0, :]
         
     print(cls_embeddings)
+    print(cls_embeddings.shape)
 
     return cls_embeddings
 
@@ -323,10 +324,10 @@ def mean_reciprocal_rank(retrieved_indices: 'list[list[int]]', true_indices: 'li
 
 
 if __name__ == "__main__":
-    """import pandas as pd
+    import pandas as pd
     from sklearn.metrics import f1_score  # Make sure sklearn is installed
 
-    random.seed(2022)
+    """random.seed(2022)
     torch.manual_seed(2022)
 
     # Parameters (you can change them)
@@ -388,7 +389,7 @@ if __name__ == "__main__":
         ["This is a hypothesis.", "This is another hypothesis."],
     )
     batch.input_embedded = sp(model.get_distilbert().embeddings(batch.input_ids))
-    batch.attention_mask = pad_attention_mask(batch.attention_mask, 5)
+    batch.attention_mask = pad_attention_mask(batch.attention_mask, 5)"""
 
     # ###################### PART 3: TEST CODE ######################
     # Preliminary
@@ -438,9 +439,4 @@ if __name__ == "__main__":
 
     print("Recall@k:", recall_at_k(retrieved_indices, true_indices, k=3))
 
-    print("MRR:", mean_reciprocal_rank(retrieved_indices, true_indices))"""
-
-    t = torch.tensor([[1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 0, 0, 0]])
-    
-    pad_attention_mask(t, 3)
+    print("MRR:", mean_reciprocal_rank(retrieved_indices, true_indices))
