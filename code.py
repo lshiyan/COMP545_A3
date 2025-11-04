@@ -136,7 +136,6 @@ class CustomDistilBert(nn.Module):
     ) -> torch.Tensor:
         last_hidden_state = x.last_hidden_state
         return last_hidden_state[:, 0, :]
-        pass
 
     def tokenize(
         self,
@@ -158,7 +157,7 @@ class CustomDistilBert(nn.Module):
         
         logits = self.pred_layer(cls_hidden_state)
 
-        result = self.sigmoid(logits)
+        result = self.sigmoid(logits).squeeze(-1)
         
         return result
 
