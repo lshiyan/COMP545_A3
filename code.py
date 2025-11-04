@@ -152,9 +152,15 @@ class CustomDistilBert(nn.Module):
         return tokenized_text
     
     def forward(self, inputs: transformers.BatchEncoding):
-        # TODO: your work below
-        pass
+        outputs = self.distilbert(input_ids=inputs['input_ids'], attention_mask=inputs['attention_mask'])
 
+        cls_hidden_state = self.slice_cls_hidden_state(outputs)
+        
+        logits = self.pred_layer(cls_hidden_state)
+
+        result = self.sigmoid(logits)
+        
+        return result
 
 # ######################## PART 2: YOUR WORK HERE ########################
 def freeze_params(model):
