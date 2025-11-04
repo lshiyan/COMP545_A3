@@ -128,7 +128,7 @@ class CustomDistilBert(nn.Module):
     # ^^^^^ DO NOT CHANGE ABOVE THIS LINE ^^^^^
 
     def assign_optimizer(self, **kwargs):
-        optimizer = torch.optim.Adam(self.distilbert.parameters(), **kwargs)
+        optimizer = torch.optim.Adam(self.parameters(), **kwargs)
         return optimizer
 
     def slice_cls_hidden_state(
@@ -148,7 +148,7 @@ class CustomDistilBert(nn.Module):
     ):
         tokenizer = self.get_tokenizer()
         
-        tokenized_text = tokenizer(premise, hypothesis, max_length = max_length, truncation = truncation, padding = padding)
+        tokenized_text = tokenizer(premise, hypothesis, max_length = max_length, truncation = truncation, padding = padding, return_tensors = 'pt')
         return tokenized_text
     
     def forward(self, inputs: transformers.BatchEncoding):
