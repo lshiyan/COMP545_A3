@@ -169,8 +169,9 @@ def freeze_params(model):
 
 
 def pad_attention_mask(mask, p):
+    print(mask)
     B = mask.size(0)
-    pad_tensor = torch.zeros(B, p, dtype=mask.dtype, device=mask.device)
+    pad_tensor = torch.zeros(B, p)
     return torch.cat([pad_tensor, mask], dim=1)
 
 
@@ -227,7 +228,13 @@ def inbatch_negative_sampling(Q: Tensor, P: Tensor, device: str = 'cpu') -> Tens
 def contrastive_loss_criterion(S: Tensor, labels: Tensor = None, device: str = 'cpu'):
     S = S.to(device)
 
-    labels = labels.to(device)
+    N, _ = S.shape
+
+    if labels is None:
+        labels = torch.arange(N, device=device)
+
+    else:
+        labels = labels.to(device)
 
     loss_fn = torch.nn.CrossEntropyLoss()
     loss = loss_fn(S, labels)
