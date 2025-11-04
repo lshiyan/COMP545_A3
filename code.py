@@ -247,28 +247,69 @@ def get_topk_indices(Q, P, k: int = None):
     return indices, scores
 
 def select_by_indices(indices: Tensor, passages: 'list[str]') -> 'list[str]':
-    # TODO: your work below
-    pass
+    result = []
+    indices = indices.tolist()
 
+    for row in indices:
+        top_passages = [passages[i] for i in row]
+        result.append(top_passages)
+
+    return result
 
 def embed_passages(passages: 'list[str]', model, tokenizer, device='cpu', max_length=512):
-    # TODO: your work below
-    pass
+    model.eval()
+    model.to(device)
 
+    with torch.no_grad():
+        encodings = tokenizer(passages, padding=True, truncation=True, max_length=max_length, return_tensors="pt")
+
+        input_ids = encodings['input_ids'].to(device)
+        attention_mask = encodings['attention_mask'].to(device)
+
+        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+
+        cls_embeddings = outputs.last_hidden_state[:, 0, :]
+
+    return cls_embeddings
 
 def embed_questions(titles, bodies, model, tokenizer, device='cpu', max_length=512):
-    # TODO: your work below
-    pass
+     model.eval()
+     model.to(device)
+
+     with torch.no_grad():
+        encodings = tokenizer(titles, bodies, padding=True, truncation=True, max_length=max_length, return_tensors="pt")
+
+        input_ids = encodings['input_ids'].to(device)
+        attention_mask = encodings['attention_mask'].to(device)
+
+        outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+
+        cls_embeddings = outputs.last_hidden_state[:, 0, :]
+
+     return cls_embeddings
 
 
 def recall_at_k(retrieved_indices: 'list[list[int]]', true_indices: 'list[int]', k: int):
-    # TODO: your work below
-    pass
-
+        hits = 0
+        for retrieved, true_idx in zip(retrieved_indices, true_indices):
+            top_k = retrieved[:k]
+            if true_idx in top_k:
+                hits += 1
+        
+        recall = hits / len(true_indices)
+        return recall
 
 def mean_reciprocal_rank(retrieved_indices: 'list[list[int]]', true_indices: 'list[int]'):
-    # TODO: your work below
-    pass
+    reciprocal_ranks = []
+    for retrieved, true_idx in zip(retrieved_indices, true_indices):
+        if true_idx in retrieved:
+            rank = retrieved.index(true_idx) + 1  # ranks start at 1
+            reciprocal_ranks.append(1 / rank)
+        else:
+            reciprocal_ranks.append(0.0)
+    
+    mrr = sum(reciprocal_ranks) / len(reciprocal_ranks)
+    return mrr
 
 
 # ######################## PART 4: YOUR WORK HERE ########################
