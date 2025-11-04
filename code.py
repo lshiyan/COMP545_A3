@@ -169,8 +169,9 @@ def freeze_params(model):
 
 
 def pad_attention_mask(mask, p):
-    pad_tensor = torch.zeros(p)
-    return torch.cat((pad_tensor, mask), dim=0)
+    B = mask.size(0)
+    pad_tensor = torch.zeros(B, p, dtype=mask.dtype, device=mask.device)
+    return torch.cat([pad_tensor, mask], dim=1)
 
 
 class SoftPrompting(nn.Module):
@@ -204,9 +205,9 @@ def load_models_and_tokenizer(q_name, a_name, t_name, device='cpu'):
 
 def tokenize_qa_batch(tokenizer, q_titles, q_bodies, answers, max_length=64) -> transformers.BatchEncoding:
     
-    q_batch = tokenizer(q_titles, q_bodies, max_length=max_length, return_tensors="pt")
+    q_batch = tokenizer(q_titles, q_bodies, max_length=max_length, truncation = True, padding = True, return_tensors="pt")
 
-    a_batch = tokenizer(answers, max_length=max_length, return_tensors="pt")
+    a_batch = tokenizer(answers, max_length=max_length, truncation = True, padding = True, return_tensors="pt")
 
     return q_batch, a_batch
 
