@@ -4,8 +4,6 @@ from typing import Union
 import torch
 from torch import Tensor
 import torch.nn as nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
 from tqdm.auto import tqdm
 from transformers import AutoModel, AutoTokenizer
 import transformers
@@ -169,10 +167,10 @@ def freeze_params(model):
 
 
 def pad_attention_mask(mask, p):
-    print(mask)
     B = mask.size(0)
     pad_tensor = torch.zeros(B, p)
-    return torch.cat([pad_tensor, mask], dim=1)
+    cat_tensor = torch.cat([pad_tensor, mask], dim=1)
+    return cat_tensor.to(mask.dtype)
 
 
 class SoftPrompting(nn.Module):
@@ -279,7 +277,7 @@ def mean_reciprocal_rank(retrieved_indices: 'list[list[int]]', true_indices: 'li
 
 
 if __name__ == "__main__":
-    import pandas as pd
+    """import pandas as pd
     from sklearn.metrics import f1_score  # Make sure sklearn is installed
 
     random.seed(2022)
@@ -394,4 +392,9 @@ if __name__ == "__main__":
 
     print("Recall@k:", recall_at_k(retrieved_indices, true_indices, k=3))
 
-    print("MRR:", mean_reciprocal_rank(retrieved_indices, true_indices))
+    print("MRR:", mean_reciprocal_rank(retrieved_indices, true_indices))"""
+
+    t = torch.tensor([[1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 0, 0, 0]])
+    
+    pad_attention_mask(t, 3)
